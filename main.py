@@ -37,6 +37,6 @@ def run_detection():
             cv2.imshow("Pose Estimation",cv2.cvtColor(annotated_image,cv2.COLOR_RGB2BGR))
             # frame +=1
             # detection_results.append(process_result(result))
-            
+            cv2.waitKey(10)
 
 run_detection()
