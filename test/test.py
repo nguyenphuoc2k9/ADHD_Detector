@@ -181,7 +181,7 @@ while cap.isOpened():
         liris_ray = np.array([liris_center[0]-eye_center[0],liris_center[1]-eye_center[1],-1])
         liris_ray_directions.append(liris_ray)
         liris_avg_ray = np.mean(liris_ray_directions,axis=0)
-        liris_ray_end = eye_center - liris_avg_ray*80
+        liris_ray_end = eye_center + liris_avg_ray*30
         cv2.line(frame,project(eye_center),project(liris_ray_end),(94,194,99),1)
         
         cv2.circle(frame,project(eye_center),3,(0,0,0),-1)
