@@ -134,7 +134,7 @@ while cap.isOpened():
             if 0 <=x < w and 0 <=y < h:
                 color = (155,155,155) if i in FACE_OUTLINE_INDICES else (255,25,10)
                 color = (10,25,255) if i in IRIS_LANDMARK else (255,25,10)
-                cv2.circle(landmarks_frame,(x,y),3,color,-1)
+                cv2.circle(landmarks_frame,(x,y),1,color,-1)
                 frame[y,x] = (255,255,255)
                 
                 
@@ -184,8 +184,8 @@ while cap.isOpened():
         liris_ray_end = eye_center + liris_avg_ray*30
         cv2.line(frame,project(eye_center),project(liris_ray_end),(94,194,99),1)
         
-        cv2.circle(frame,project(eye_center),3,(0,0,0),-1)
-        cv2.circle(frame,project(liris_center),3,(255,255,255),-1)
+        cv2.circle(frame,project(eye_center),1,(0,0,0),-1)
+        cv2.circle(frame,project(liris_center),1,(255,255,255),-1)
         cv2.line(frame,project(eye_center),project(liris_center),(94,194,99),1)
         cv2.putText(frame,f"left eye width: ({liris_right[0]-liris_left[0]},{liris_bottom[1]-liris_top[1]})",(0,30),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2,cv2.LINE_AA)
         cv2.putText(frame,f"distant from eye center: ({liris_center[0]-eye_center[0]},{liris_center[1]-eye_center[1]})",(0,70),cv2.FONT_HERSHEY_SIMPLEX,1,(255,0,0),2,cv2.LINE_AA)
