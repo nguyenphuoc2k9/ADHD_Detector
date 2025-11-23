@@ -1,0 +1,98 @@
+/* Sidebar */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Neucha&display=swap');
+.sidebar{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px;
+    width: 20vw;
+    height: 100vh;
+    background-color: #101922;
+    font-family: "Inter", sans-serif;
+    gap: 2vh;
+    overflow: hidden;
+    border-right: solid 1px #161F2A;
+    transition: all cubic-bezier(0.075, 0.82, 0.165, 1) 0.5s;
+}
+.sidebar svg{
+    overflow: unset !important;
+
+}
+.sidebar.active{
+    width: 4vw;
+}
+.sidebar.active .page-card{
+    width: unset;
+        display: flex;
+    align-items: center;
+}
+.sidebar.active .welcome-text{
+    display: none;
+}
+.sidebar.active p{
+    display: none;
+}
+.welcome-box{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-top:16px;
+    gap: 1vh;
+    color: #7D8490;
+}
+.welcome-box svg{
+    width: 25px;
+    padding: 10px;
+    height: 25px;
+    color: #fff;
+    border-radius: 8px;
+    background-color: #137FEC;
+    cursor: pointer;
+}
+.welcome-text{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 80%;
+}
+.welcome-text h1{
+    color: #fff;
+}
+.page-box{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #96A0AF;
+    width: 100%;
+    flex:1;
+}
+
+.page-card a{
+    color:#96A0AF;
+    text-decoration: none;
+    font-size: 20px;
+    display: flex;
+    padding: 16px;
+    align-items: center;
+    border-radius: 8px;
+}
+.page-card a.active{
+    background-color: #11375E;
+    color:#125DAA;
+}
+.page-card svg{
+    width: 25px;
+    height: 25px;
+    margin-right: 2px;
+}
+.page-card{
+    width: 100%;
+
+}
+.setting-box{
+    display: flex;
+    width: 100%;
+    align-items: center;
+    flex-direction: column;
+}

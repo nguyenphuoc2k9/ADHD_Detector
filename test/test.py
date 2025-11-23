@@ -2,13 +2,20 @@ import cv2
 import os
 import numpy as np
 import yaml
+import torch
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from  collections import deque
 import math
-
-    
+def process_result(result):
+    try:
+        detection_results = []
+        for landmark in result.landmark:
+            detection_results.append([landmark.x,landmark.y,landmark.z,landmark.visibility])
+        return detection_results
+    except:
+        return
 def get_root_dir():
     script_path = os.path.abspath(__file__)
     script_dir = os.path.dirname(script_path)
@@ -23,6 +30,15 @@ face_mesh = mp_face_mesh.FaceMesh(static_image_mode=False,
                                   min_detection_confidence=0.5,
                                   min_tracking_confidence=0.5)
 model = face_mesh
+mp_hands = mp.solutions.hands
+hand_model = mp_hands.Hands(
+    static_image_mode = False,
+    max_num_hands = 2,
+    min_detection_confidence = 0.5,
+    min_tracking_confidence = 0.5
+)
+mp_drawing = mp.solutions.drawing_utils
+
 # print(os.path.join(get_root_dir(),"attention.yaml"))
 # print(os.path.join(get_root_dir(),"data\csv.csv"))
 LANDMARKS = {
@@ -120,7 +136,18 @@ while cap.isOpened():
     h,w,_ = frame.shape
     rgb = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
     results = model.process(rgb)
-    
+    hand_result = hand_model.process(rgb)
+    if hand_result.q:
+        for hand_landmarks in hand_result.multi_hand_landmarks:
+            mp_drawing.draw_landmarks(
+                frame, 
+                hand_landmarks, 
+                mp_hands.HAND_CONNECTIONS,
+                mp.solutions.drawing_styles.get_default_hand_landmarks_style(),
+                mp.solutions.drawing_styles.get_default_hand_connections_style()
+            )
+            processed_result = torch.tensor(process_result(hand_landmarks))
+            print(processed_result.shape)
     if results.multi_face_landmarks:
         face_landmarks = results.multi_face_landmarks[0].landmark
         landmarks_frame = np.zeros_like(frame)
@@ -305,7 +332,7 @@ while cap.isOpened():
         ray_end = avg_origin - avg_direction*ray_length
         cv2.line(frame,project(avg_origin),project(ray_end),(15,255,0),3)
         cv2.line(landmarks_frame,project(avg_origin),project(ray_end),(15,255,0),3)
-        print(f" Angles: ({yaw_deg},{pitch_deg})")
+        #print(f" Angles: ({yaw_deg},{pitch_deg})")
         cv2.imshow("Head-aligned cube",frame)
         cv2.imshow("Facial Landmarks",landmarks_frame)
     key = cv2.waitKey(1) & 0xFF

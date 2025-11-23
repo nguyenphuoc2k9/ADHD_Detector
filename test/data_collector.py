@@ -23,6 +23,14 @@ model = mp_face_mesh.FaceMesh(static_image_mode=False,
                                   refine_landmarks=True,
                                   min_detection_confidence=0.5,
                                   min_tracking_confidence=0.5)
+mp_hand_mesh = mp.solutions.hands
+hand_model  = mp_hand_mesh.Hands(
+    static_image_mode = False,
+    max_num_hands = 2,
+    min_detection_confidence = 0.5,
+    min_tracking_confidence = 0.5
+)
+mp_drawing = mp.solutions.drawing_utils
 LANDMARKS = {
     "left": 234,
     "right": 454,
@@ -78,9 +86,18 @@ liris_ray_origins = deque(maxlen=filter_length)
 liris_ray_directions = deque(maxlen=filter_length)
 riris_ray_origins = deque(maxlen=filter_length)
 riris_ray_directions = deque(maxlen=filter_length)
+def draw_hand_landmark(frame,hand_landmarks):
+    global mp_hand_mesh
+    mp_drawing.draw_landmarks(
+                frame, 
+                hand_landmarks, 
+                mp_hand_mesh.HAND_CONNECTIONS,
+                mp.solutions.drawing_styles.get_default_hand_landmarks_style(),
+                mp.solutions.drawing_styles.get_default_hand_connections_style()
+    )
 def landmark_to_np(landmark,w,h):
     return np.array([landmark.x*w,landmark.y*h,landmark.z*w])
-def get_axes(left,right,top,bottom,front):
+def get_axes(left,right,top,bottom):
     right_axis = (right-left)
     right_axis/=np.linalg.norm(right_axis)
     
@@ -117,7 +134,8 @@ for video_path in video_paths:
     fps = cap.get(cv2.CAP_PROP_FPS)
     speed =1
     label = 0
-    row = []
+    face_row = []
+    hand_row = []
     frame_count = 0
     frame_limit = fps*30
     while cap.isOpened():
@@ -125,10 +143,26 @@ for video_path in video_paths:
         if not ret:
             break
         h,w,_ = frame.shape
-        rgb = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
-        results = model.process(rgb)
-        if results.multi_face_landmarks:
-            face_landmarks = results.multi_face_landmarks[0].landmark
+        
+        hand_frame = frame[:,:1280,:]
+        face_frame = frame[:480,1281:,:]
+        hand_rgb = cv2.cvtColor(hand_frame,cv2.COLOR_BGR2RGB)
+        face_rgb = cv2.cvtColor(face_frame,cv2.COLOR_BGR2RGB)
+        cv2.waitKey(1)
+        face_results = model.process(face_rgb)
+        hand_results = hand_model.process(hand_rgb)
+        if hand_results.multi_hand_landmarks:
+            temp = []
+            for hand_landmark in hand_results.multi_hand_landmarks:
+                draw_hand_landmark(hand_frame,hand_landmark)
+                for landmark in hand_landmark.landmark:
+                    temp.append(landmark.x)
+                    temp.append(landmark.y)
+                    temp.append(landmark.z)
+            hand_row.append(temp)
+            cv2.imshow("hand",hand_frame)
+        if face_results.multi_face_landmarks:
+            face_landmarks = face_results.multi_face_landmarks[0].landmark
             key_points = {}
             for name,idx in LANDMARKS.items():
                 pt = landmark_to_np(face_landmarks[idx],w,h)
@@ -189,7 +223,7 @@ for video_path in video_paths:
             top = key_points['top']
             bottom = key_points['bottom']
             front = key_points['front']
-            right_axis,up_axis,forward_axis = get_axes(left,right,top,bottom,front)
+            right_axis,up_axis,forward_axis = get_axes(left,right,top,bottom)
             center = (left+right+bottom+top+front)/5
             
             half_width = np.linalg.norm(right-left)/2
@@ -226,9 +260,9 @@ for video_path in video_paths:
                 pitch_deg = 360+pitch_deg
             yaw_deg-=180
             pitch_deg -= 180
-            cv2.putText(frame,f"seconds:{len(row)}",(0,20),1,1,(0,0,0),1)
-            cv2.imshow("Head-aligned cube",frame)  
-            row.append([LEFT_EAR,liris_hort_angle,liris_vert_angle,RIGHT_EAR,riris_hort_angle,riris_vert_angle,yaw_deg,pitch_deg])
+            cv2.putText(frame,f"seconds:{len(face_row)}",(0,20),1,1,(0,0,0),1)
+            cv2.imshow("Head-aligned cube",face_frame)  
+            face_row.append([LEFT_EAR,liris_hort_angle,liris_vert_angle,RIGHT_EAR,riris_hort_angle,riris_vert_angle,yaw_deg,pitch_deg])
         if frame_count == frame_limit:
             key = cv2.waitKey(0) & 0xFF
             if key == ord("0"):
@@ -236,9 +270,12 @@ for video_path in video_paths:
             elif key == ord("1"):
                 label = 1
             data.append({
-                'features':row,
+                'face_features':face_row,
+                'hand_features':hand_row,
                 'label':label
             })
+            face_row = []
+            hand_row = []
             frame_count = 0
         key = cv2.waitKey(10) & 0xFF
         if key == ord("e"):
