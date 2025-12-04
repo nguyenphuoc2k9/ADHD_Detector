@@ -11,7 +11,7 @@ function App() {
     <>
       <div className='content-box'>
         
-        <AppRoutes/>
+        <AppRoutes userid='692f03cf6f92de6a879a0528'/>
       </div>
       <div></div>
     </>

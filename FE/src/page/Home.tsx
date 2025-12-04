@@ -1,6 +1,8 @@
 import SideBar from '../components/SideBar'
 import { LineChart } from '@mui/x-charts/LineChart'
 import { IoSend } from "react-icons/io5";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -24,14 +26,108 @@ ChartJS.register(
 );
 import { Line } from "react-chartjs-2"
 import "./style.css"
+import { useEffect, useState } from 'react';
+import { instance } from '../api/axios';
+import gif from '../assets/Rolling@1x-1.0s-200px-200px.gif'
+interface Props {
+  userid: string
+}
+const Home = ({ userid }: Props) => {
+  const [PlotData, setPlotData] = useState<any[]>()
+  const [sortType, setSortType] = useState<string>('today')
+  const [label, setLabel] = useState<string[]>(['1AM', '2AM', '3AM', '4AM', '5AM', '6AM', '7AM', '8AM', '9AM', '10AM', '11AM', '12AM', '1PM', '2PM', '3PM', '4PM', '5PM', '6PM', '7PM', '8PM', '9PM', '10PM', '11PM', '12PM'])
+  const [chatHistory, setChatHistory] = useState<string[]>([])
+  const [isLoading, setLoading] = useState<boolean>(false)
+  const handle_submit_chat = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const form = new FormData(e.currentTarget)
+    const user_chat = form.get("user_chat") as string;
+    e.currentTarget.reset()
+    setLoading(true)
+    setChatHistory([...chatHistory, user_chat])
+    const response = await instance.post("/call_ai", { user_chat: user_chat, userid: userid },{headers: {"Content-Type":'application/json'}})
+    setLoading(false)
+    setChatHistory([...chatHistory, user_chat,response.data.ai_chat])
+  }
+  const handle_change_type = (type: string) => {
+    if (type == 'today') {
+      setLabel(['1AM', '2AM', '3AM', '4AM', '5AM', '6AM', '7AM', '8AM', '9AM', '10AM', '11AM', '12AM', '1PM', '2PM', '3PM', '4PM', '5PM', '6PM', '7PM', '8PM', '9PM', '10PM', '11PM', '12PM'])
 
-const Home = () => {
+    } else if (type == 'month') {
+      let now = new Date()
+      let list = []
+      let month_array = ['', 'Jan', 'Feb', 'Mar', 'Ap', 'May', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      let current_month = month_array[now.getMonth()]
+      for (let i = 1; i <= now.getDate(); i++) {
+        list.push(`${current_month} ${i}th`)
+      }
+      setLabel(list)
+
+    } else if (type == 'week') {
+      setLabel(["Mon", 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])
+    } else if (type == 'year') {
+      setLabel(['Jan', 'Feb', 'Mar', 'Ap', 'May', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+    }
+    setSortType(type)
+  }
+  const process_plot_data = (data: any[]) => {
+    let list: any[] = []
+
+    if (data) {
+      if (sortType == 'today') {
+        list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        for (let i = 0; i < data.length; i++) {
+          list[data[i]._id.hour - 1] = Math.floor(data[i].avg_focus)
+        }
+      } else if (sortType == 'month') {
+        list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        for (let i = 0; i < data.length; i++) {
+          list[data[i]._id.day - 1] = Math.floor(data[i].avg_focus)
+        }
+
+      } else if (sortType == 'week') {
+        list = [0, 0, 0, 0, 0, 0, 0]
+        for (let i = 0; i < data.length; i++) {
+          list[data[i]._id.day - 1] = Math.floor(data[i].avg_focus)
+        }
+      } else if (sortType == 'year') {
+        list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        for (let i = 0; i < data.length; i++) {
+          list[data[i]._id.month - 1] = Math.floor(data[i].avg_focus)
+        }
+      }
+    }
+    console.log(sortType, list)
+    return list
+
+  }
+  const get_plot_data = async () => {
+    let end_point = ''
+    // console.log(sortType)
+    if (sortType == 'today') {
+      end_point = '/get_timestamp_today'
+    } else if (sortType == 'week') {
+      end_point = '/get_timestamp_week'
+    }
+    else if (sortType == 'month') {
+      end_point = '/get_timestamp_month'
+    }
+    else if (sortType == 'year') {
+      end_point = '/get_timestamp_year'
+    }
+    const response = await instance.post(end_point, { userid: userid }, { headers: { "Content-Type": 'application/json' } })
+    const data: any[] = response.data
+
+    setPlotData(process_plot_data(data))
+  }
+
+
   const data = {
-    labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
+    labels: label,
     datasets: [
       {
-        label: 'Focus Time (Minutes)',
-        data: [100, 200, 300, 150, 450, 250, 350],
+        label: 'Focus Score ',
+        data: PlotData,
         borderColor: '#2563EB', // Blue-600 for line color
         backgroundColor: 'rgba(37, 99, 235, 0.15)', // Light blue fill
         tension: 0.4,
@@ -44,38 +140,41 @@ const Home = () => {
   const option = {
     backgroundColor: 'rgba(0,0,0,0.5)',
     responsive: true,
-    maintainAspectRatio:false,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        display:false,
+        display: false,
       },
       title: {
-        display:false,
+        display: false,
       }
 
     },
-    scales:{
-      x:{
-        ticks:{
-          color:'#d8dde6ff'
+    scales: {
+      x: {
+        ticks: {
+          color: '#d8dde6ff'
         },
-        grid:{
-          color:"rgba(55,65,81,0.5)",
-          borderColor:'transparent'
+        grid: {
+          color: "rgba(55,65,81,0.5)",
+          borderColor: 'transparent'
         }
       },
-      y:{
-        ticks:{
-          color:'#d8dde6ff'
+      y: {
+        ticks: {
+          color: '#d8dde6ff'
         },
-        grid:{
-          color:"rgba(55,65,81,0.2)",
-          borderColor:'transparent'
+        grid: {
+          color: "rgba(55,65,81,0.2)",
+          borderColor: 'transparent'
         }
       },
     }
 
   }
+  useEffect(() => {
+    get_plot_data()
+  }, [sortType])
   const chartKey = JSON.stringify(data.datasets) + JSON.stringify(option);
   return (
     <>
@@ -86,7 +185,7 @@ const Home = () => {
             <h1>Dashboard</h1>
             <p>Welcome back, here's a sumary of your study performance</p>
           </div>
-          <div className="statistic">
+          {/* <div className="statistic">
             <div className="box">
               <h4>Total Focus Time Today</h4>
               <h1>4h 32m</h1>
@@ -102,23 +201,29 @@ const Home = () => {
               <h1>4h 32m</h1>
               <p>+12%</p>
             </div>
-          </div>
+          </div> */}
           <div className="graph">
             <div className="graph-title">
-              <h3>Focus Time This Month</h3>
+              {sortType == 'today'
+                ?
+                <h3>Focus Score {sortType}</h3>
+                :
+                <h3>Focus Score this {sortType}</h3>
+              }
+
             </div>
             <div className="progress-scale">
-              <button>Today</button>
-              <button>This Week</button>
-              <button>This Month</button>
-              <button>This Year</button>
+              <button onClick={() => handle_change_type("today")} className={sortType == 'today' ? 'active' : ''}>Today</button>
+              <button onClick={() => handle_change_type("week")} className={sortType == 'week' ? 'active' : ''}>This Week</button>
+              <button onClick={() => handle_change_type("month")} className={sortType == 'month' ? 'active' : ''}>This Month</button>
+              <button onClick={() => handle_change_type("year")} className={sortType == 'year' ? 'active' : ''}>This Year</button>
             </div>
             <div className="graph-box">
-                <Line
-              key={chartKey}
-              data={data}
-              options={option}
-            />
+              <Line
+                key={chartKey}
+                data={data}
+                options={option}
+              />
             </div>
             {/* <LineChart
               xAxis={[
@@ -155,7 +260,7 @@ const Home = () => {
                 
               }}
             /> */}
-            
+
 
           </div>
         </div>
@@ -172,35 +277,50 @@ const Home = () => {
             <div className="chatbot-box-suggestion">
               <p>Help me plan my week.</p>
             </div>
-            <div className="user-chat">
-              <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio aperiam natus cupiditate quos amet blanditiis officia consectetur ea eos adipisci, excepturi quia facere facilis cum itaque ad perferendis alias modi?</p>
-            </div>
-            <div className="chatbot-chat">
-              <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eaque enim voluptate non rerum, temporibus ad odio nostrum maiores quidem dolorum rem, repudiandae repellat sunt atque. Blanditiis quia non neque fugit.</p>
-            </div>
-            <div className="user-chat">
-              <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio aperiam natus cupiditate quos amet blanditiis officia consectetur ea eos adipisci, excepturi quia facere facilis cum itaque ad perferendis alias modi?</p>
-            </div>
-            <div className="user-chat">
-              <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio aperiam natus cupiditate quos amet blanditiis officia consectetur ea eos adipisci, excepturi quia facere facilis cum itaque ad perferendis alias modi?</p>
-            </div>
-            <div className="chatbot-chat">
-              <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eaque enim voluptate non rerum, temporibus ad odio nostrum maiores quidem dolorum rem, repudiandae repellat sunt atque. Blanditiis quia non neque fugit.</p>
-            </div>
-            <div className="user-chat">
-              <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Optio aperiam natus cupiditate quos amet blanditiis officia consectetur ea eos adipisci, excepturi quia facere facilis cum itaque ad perferendis alias modi?</p>
-            </div>
+            {chatHistory.map((text, i) => {
+              if (i % 2 == 0) {
+                return (
+                  <div className="user-chat">
+                    <p>{text}</p>
+                  </div>
+                )
+              } else {
+                return (
+                  <div className="chatbot-chat">
+                <ReactMarkdown 
+                // remarkGfm handles bolding and list recognition perfectly
+                  remarkPlugins={[remarkGfm]} 
+        // You can use a custom component for the bold text or list items 
+        // if you wanted specific styling not handled by CSS
+        components={{
+            // This component ensures the list items are rendered properly
+            ul: ({ node, ...props }) => <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }} {...props} />,
+            // This component ensures bold text has an accent color
+            strong: ({ node, ...props }) => <strong style={{ color: '#007bff' }} {...props} />,
+        }}
+      >
+        {text}
+      </ReactMarkdown>
+                  </div>
+                )
+              }
+
+            })}
+
+
+            {
+
+            }
 
 
 
 
           </div>
           <div className="chatbot-input">
-            <form action="" method="post">
-              <input type="text" placeholder='Ask AI' />
-              <button type='submit'><IoSend /></button>
+            <form action="" method="post" onSubmit={(e) => handle_submit_chat(e)}>
+              <input type="text" name='user_chat' placeholder='Ask AI' />
+              <button type='submit'>{isLoading ? <img src={gif}/> : <IoSend />}</button>
             </form>
-
           </div>
         </div>
       </div>

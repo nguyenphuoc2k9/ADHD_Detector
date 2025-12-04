@@ -7,10 +7,14 @@ import Registry from "../page/Registry"
 import Login from "../page/Login"
 import Goals from "../page/Goals"
 import StudyPage from "../page/StudyPage"
-const router = createBrowserRouter([
+interface Props {
+    userid:string
+}
+export default function AppRoutes({userid}:Props){
+    const router = createBrowserRouter([
     {
         path:"/",
-        element:<Home/>
+        element:<Home userid={userid}/>
     },
     {
         path:"/about",
@@ -34,13 +38,12 @@ const router = createBrowserRouter([
     },
     {
         path:"/goals",
-        element:<Goals/>
+        element:<Goals userid={userid}/>
     },
     {
         path:"/studypage",
-        element:<StudyPage/>
+        element:<StudyPage userid={userid}/>
     }
 ])
-export default function AppRoutes(){
     return <RouterProvider router={router}/>
 }
