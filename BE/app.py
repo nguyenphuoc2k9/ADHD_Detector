@@ -227,3 +227,6 @@ def process_image(frame: Frame):
             return {'focus_score':focus_score}
     
 
+if __name__ == "__app__":
+    import uvicorn
+    uvicorn.run("BE.app:app", host="0.0.0.0", port=5001, reload=True)
