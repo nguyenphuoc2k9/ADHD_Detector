@@ -108,7 +108,7 @@ const Goals = ({userid}:Props) => {
     }
   }
   const handle_delete_goal = async (_id:string) =>{
-    const response = await fetch("http://127.0.0.1:5000/delete_goal",{
+    const response = await fetch(`${import.meta.env.REACT_APP_API_ENDPOINT}/delete_goal`,{
       method:"delete",
       body: JSON.stringify({
         _id:_id
