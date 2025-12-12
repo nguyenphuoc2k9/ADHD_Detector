@@ -6,9 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel,Field
 from collections import deque
 import time
-from BE.AI_chat import ask_AI
-from BE.DB_utils import create_timestamp,find_timestamp_this_month,find_timestamp_this_year,find_timestamp_today,create_goal,edit_goal_progress,find_timestamp_this_week,get_goals,delete_goal
-from BE.image_processing import compute_and_draw_coordinate_box, compute_focus_score, compute_scale, convert_gaze_to_screen_coordinates, decode_base64_image, normalize
+from AI_chat import ask_AI
+from DB_utils import create_timestamp,find_timestamp_this_month,find_timestamp_this_year,find_timestamp_today,create_goal,edit_goal_progress,find_timestamp_this_week,get_goals,delete_goal
+from image_processing import compute_and_draw_coordinate_box, compute_focus_score, compute_scale, convert_gaze_to_screen_coordinates, decode_base64_image, normalize
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -227,6 +227,6 @@ def process_image(frame: Frame):
             return {'focus_score':focus_score}
     
 
-if __name__ == "__app__":
+if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("BE.app:app", host="0.0.0.0", port=5001, reload=True)
+    uvicorn.run("app:app", host="0.0.0.0", port=5001, reload=True)
