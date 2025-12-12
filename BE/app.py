@@ -9,7 +9,11 @@ import time
 from AI_chat import ask_AI
 from DB_utils import create_timestamp,find_timestamp_this_month,find_timestamp_this_year,find_timestamp_today,create_goal,edit_goal_progress,find_timestamp_this_week,get_goals,delete_goal
 from image_processing import compute_and_draw_coordinate_box, compute_focus_score, compute_scale, convert_gaze_to_screen_coordinates, decode_base64_image, normalize
-app = FastAPI()
+app = FastAPI(
+    title="Vercel + FastAPI",
+    description="Vercel + FastAPI",
+    version="1.0.0",
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],          # React frontend domain
