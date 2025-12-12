@@ -93,7 +93,7 @@ def compute_focus_score(yaw,pitch,avg_dir,gaze_history,blink_history):
     pitch_norm = max(0,1-abs(pitch)/MAX_PITCH)
     GazeCenterScore = (yaw_norm+pitch_norm)/2
     
-    if(len(gaze_history)) >= 25:
+    if(len(gaze_history)) >= 40:
         gaze_std = np.std(gaze_history,axis=0)
         instability = np.linalg.norm(gaze_std)
         instability_clamped = min(instability/0.15,1.0)
@@ -101,7 +101,7 @@ def compute_focus_score(yaw,pitch,avg_dir,gaze_history,blink_history):
     else:
         
         GazeStabilityScore = 1.0
-    if len(blink_history) >= 25:
+    if len(blink_history) >= 40:
         blink_rate = sum(blink_history) / len(blink_history)
     else:
         blink_rate = 0
@@ -111,7 +111,7 @@ def compute_focus_score(yaw,pitch,avg_dir,gaze_history,blink_history):
         BlinkAttentionScore = 0.7
     else:
         blink_rate = 0.4
-    w1,w2,w3 = 0.40,0.50,0.1
+    w1,w2,w3 = 0.45,0.45,0.1
     FocusScore = (
         w1*GazeCenterScore +
         w2*GazeStabilityScore +
