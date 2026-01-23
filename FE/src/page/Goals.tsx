@@ -12,7 +12,7 @@ import { RiErrorWarningLine } from "react-icons/ri";
 import { SiTicktick } from "react-icons/si";
 
 interface Props {
-    userid:string
+    userid?:string
 }
 interface Goal{
   _id:string
@@ -108,13 +108,12 @@ const Goals = ({userid}:Props) => {
     }
   }
   const handle_delete_goal = async (_id:string) =>{
-    const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}/delete_goal`,{
-      method:"delete",
-      body: JSON.stringify({
+    const res = instance.delete("/delete_goal",{
+      data:{
         _id:_id
-      }),
+      }
+      ,
       headers: {'Content-Type':'application/json'}
-
     })
     get_goals()
     handle_close_updater(dummy)

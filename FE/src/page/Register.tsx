@@ -1,5 +1,6 @@
 import React, { useState, type ChangeEvent, type FormEvent } from 'react';
 import { instance } from '../api/axios';
+import { redirect } from 'react-router-dom';
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -28,7 +29,7 @@ const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      const response = await instance.post('/', 
+      const response = await instance.post('/create_user', 
         {
           fullName: formData.fullName,
           email: formData.email,
@@ -37,9 +38,9 @@ const Register: React.FC = () => {
         {headers: { 'Content-Type': 'application/json' }}
       );
 
-      if (response.status) {
+      if (response.data.status == "1") {
         alert('Registration successful!');
-        // Typically you would redirect the user to /signin here
+        
       } else {
         const data = await response.data
         setError(data.message || 'Registration failed.');

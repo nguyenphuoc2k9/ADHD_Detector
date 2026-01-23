@@ -160,8 +160,30 @@ def find_timestamp_this_week(payload):
     ]
     res = FC.aggregate(query)
     return list(res)
-
-
+def create_user(payload):
+    fullname = payload.fullName
+    email = payload.email
+    password = payload.password
+    exists = US.find_one({"email":email})
+    print(exists['email'])
+    if not exists :
+        
+        US.insert_one({
+            "fullName": fullname,
+            "email": email,
+            "password":password
+        })
+        return {"status":1}
+    return {"status":0,"message": "account already existed"}
+def login(payload):
+    email = payload.email
+    password = payload.password
+    exists = US.find_one({"email":email})
+    if exists:
+        if password == exists['password']:
+            return {"status":1,"userid": str(exists['_id'])}
+        else:
+            return {"status":0}
 
 # userid = "692f03cf6f92de6a879a0528"
 

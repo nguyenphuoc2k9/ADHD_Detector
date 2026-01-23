@@ -30,9 +30,10 @@ import { useEffect, useState } from 'react';
 import { instance } from '../api/axios';
 import gif from '../assets/Rolling@1x-1.0s-200px-200px.gif'
 interface Props {
-  userid: string
+  userid?: string
 }
 const Home = ({ userid }: Props) => {
+  console.log(userid)
   const [PlotData, setPlotData] = useState<any[]>()
   const [sortType, setSortType] = useState<string>('today')
   const [label, setLabel] = useState<string[]>(['1AM', '2AM', '3AM', '4AM', '5AM', '6AM', '7AM', '8AM', '9AM', '10AM', '11AM', '12AM', '1PM', '2PM', '3PM', '4PM', '5PM', '6PM', '7PM', '8PM', '9PM', '10PM', '11PM', '12PM'])

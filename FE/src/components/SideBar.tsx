@@ -24,7 +24,7 @@ const SideBar = () => {
             <div className="welcome-box">
                 <MdOutlineSchool onClick={handleActive}/>
                 <div className="welcome-text">
-                    <h3>FocusFlow</h3>
+                    <h3>FocusStream</h3>
                     <p>Welcome Back!</p>
                 </div>
 
