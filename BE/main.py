@@ -332,8 +332,8 @@ app.add_middleware(
 )
 FPS=10
 LEFT_IRIS, RIGHT_IRIS = 468, 473
-gaze_history = deque(maxlen=FPS*5)
-blink_history = deque(maxlen=FPS*5)
+gaze_history = deque(maxlen=FPS*3)
+blink_history = deque(maxlen=FPS*2)
 # === Configuration ===
 filter_length = 10       # smoothing window for gaze vector
 # --- Reference matrices for rotation stabilization ---
@@ -542,4 +542,4 @@ def process_image(frame: Frame):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app:app", host="0.0.0.0", port=5001, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=5001, reload=True)

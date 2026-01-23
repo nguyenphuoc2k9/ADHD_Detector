@@ -87,8 +87,8 @@ def draw_wireframe_cube(frame, center, R, size=80):
     for i, j in edges:
         cv2.line(frame, projected[i], projected[j], (255, 128, 0), 1)
 def compute_focus_score(yaw,pitch,avg_dir,gaze_history,blink_history):
-    MAX_YAW = 10
-    MAX_PITCH = 10
+    MAX_YAW = 20
+    MAX_PITCH = 20
     yaw_norm = max(0,1-abs(yaw)/MAX_YAW)
     pitch_norm = max(0,1-abs(pitch)/MAX_PITCH)
     GazeCenterScore = (yaw_norm+pitch_norm)/2
@@ -111,7 +111,7 @@ def compute_focus_score(yaw,pitch,avg_dir,gaze_history,blink_history):
         BlinkAttentionScore = 0.7
     else:
         blink_rate = 0.4
-    w1,w2,w3 = 0.45,0.45,0.1
+    w1,w2,w3 = 0.55,0.40,0.05
     FocusScore = (
         w1*GazeCenterScore +
         w2*GazeStabilityScore +

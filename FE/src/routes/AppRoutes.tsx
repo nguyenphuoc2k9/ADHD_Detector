@@ -7,6 +7,8 @@ import Registry from "../page/Registry"
 import Login from "../page/Login"
 import Goals from "../page/Goals"
 import StudyPage from "../page/StudyPage"
+import SignIn from "../page/SignIn"
+import Register from "../page/Register"
 interface Props {
     userid:string
 }
@@ -43,6 +45,14 @@ export default function AppRoutes({userid}:Props){
     {
         path:"/studypage",
         element:<StudyPage userid={userid}/>
+    },
+    {
+        path:"/signin",
+        element: <SignIn/>
+    },
+    {
+        path:"/register",
+        element: <Register/>
     }
 ])
     return <RouterProvider router={router}/>
