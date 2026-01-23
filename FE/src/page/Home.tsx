@@ -295,7 +295,7 @@ const Home = ({ userid }: Props) => {
         // if you wanted specific styling not handled by CSS
         components={{
             // This component ensures the list items are rendered properly
-            ul: ({ node, ...props }) => <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }} {...props} />,
+            ul: ({ node, ...props }) => <ul style={{ listStyleType: 'disc', paddingLeft: '20px',color:"#fff" }} {...props} />,
             // This component ensures bold text has an accent color
             strong: ({ node, ...props }) => <strong style={{ color: '#007bff' }} {...props} />,
         }}

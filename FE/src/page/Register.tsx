@@ -1,7 +1,8 @@
 import React, { useState, type ChangeEvent, type FormEvent } from 'react';
 import { instance } from '../api/axios';
-import { redirect } from 'react-router-dom';
+import { NavLink, redirect, useNavigate } from 'react-router-dom';
 const Register: React.FC = () => {
+    const navigate = useNavigate()
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -40,6 +41,7 @@ const Register: React.FC = () => {
 
       if (response.data.status == "1") {
         alert('Registration successful!');
+        navigate("/signin")
         
       } else {
         const data = await response.data
@@ -116,6 +118,7 @@ const Register: React.FC = () => {
           >
             {loading ? 'Registering...' : 'Sign Up'}
           </button>
+          <NavLink to="/signin">Sign In</NavLink>
         </form>
       </div>
     </div>
