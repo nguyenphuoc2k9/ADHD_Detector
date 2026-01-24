@@ -9,10 +9,12 @@ import Goals from "../page/Goals"
 import StudyPage from "../page/StudyPage"
 import SignIn from "../page/SignIn"
 import Register from "../page/Register"
+import { useAuth } from "../hooks/useAuth"
 interface Props {
     userid:string
 }
 export default function AppRoutes({userid}:Props){
+    
     const router = createBrowserRouter([
     {
         path:"/",

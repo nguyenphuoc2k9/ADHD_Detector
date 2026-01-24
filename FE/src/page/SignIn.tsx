@@ -1,4 +1,5 @@
 import React, { useState, type ChangeEvent, type FormEvent } from 'react';
+import { NavLink } from 'react-router-dom';
 
 // Define the shape of our form data
 interface SignInData {
@@ -89,6 +90,7 @@ const SignIn: React.FC = () => {
           >
             {loading ? 'Processing...' : 'Sign In'}
           </button>
+          <NavLink to="/registry">Sign Up</NavLink>
         </form>
       </div>
     </div>

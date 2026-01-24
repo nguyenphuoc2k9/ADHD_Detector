@@ -8,7 +8,7 @@ from pydantic import BaseModel,Field
 from collections import deque
 import time
 from AI_chat import ask_AI
-from DB_utils import create_timestamp,find_timestamp_this_month,find_timestamp_this_year,find_timestamp_today,create_goal,edit_goal_progress,find_timestamp_this_week,get_goals,delete_goal
+from DB_utils import create_timestamp, create_user,find_timestamp_this_month,find_timestamp_this_year,find_timestamp_today,create_goal,edit_goal_progress,find_timestamp_this_week,get_goals,delete_goal, login
 from image_processing import compute_and_draw_coordinate_box, compute_focus_score, compute_scale, convert_gaze_to_screen_coordinates, decode_base64_image, normalize
 app = FastAPI(
     title="Vercel + FastAPI",
@@ -332,7 +332,7 @@ app.add_middleware(
 )
 FPS=10
 LEFT_IRIS, RIGHT_IRIS = 468, 473
-gaze_history = deque(maxlen=FPS*3)
+gaze_history = deque(maxlen=FPS*4)
 blink_history = deque(maxlen=FPS*2)
 # === Configuration ===
 filter_length = 10       # smoothing window for gaze vector
@@ -378,7 +378,7 @@ class Goal(BaseModel):
     deadline:str
 class TimeStamp(BaseModel):
     userid:str
-    avg_focus_score:int
+    avgfocus_score:int
 class NewProgress(BaseModel):
     new_progress:int
     id: str = Field(alias="_id")
@@ -389,6 +389,18 @@ class UserInfo(BaseModel):
 class AI_REQUEST(BaseModel):
     userid:str
     user_chat:str
+class Register(BaseModel):
+    email: str
+    fullName: str
+    password:str
+class Login(BaseModel):
+    email:str
+    password:str
+@app.post("/create_user")
+def createUser(payload:Register):
+    create_user(payload)
+def Login(payload:Login):
+    login(payload)
 @app.post('/create_goal')
 def createGoal(payload:Goal):
     create_goal(payload)
