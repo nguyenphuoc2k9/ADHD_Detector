@@ -73,7 +73,7 @@ const Home = ({ userid }: Props) => {
   }
   const process_plot_data = (data: any[]) => {
     let list: any[] = []
-
+    console.log(data)
     if (data) {
       if (sortType == 'today') {
         list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -81,24 +81,25 @@ const Home = ({ userid }: Props) => {
           list[data[i]._id.hour - 1] = Math.floor(data[i].avg_focus)
         }
       } else if (sortType == 'month') {
+        
         list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         for (let i = 0; i < data.length; i++) {
-          list[data[i]._id.day - 1] = Math.floor(data[i].avg_focus)
+          list[i] = Math.floor(data[i].avg_focus)
         }
 
       } else if (sortType == 'week') {
         list = [0, 0, 0, 0, 0, 0, 0]
         for (let i = 0; i < data.length; i++) {
-          list[data[i]._id.day - 1] = Math.floor(data[i].avg_focus)
+          list[i] = Math.floor(data[i].avg_focus)
         }
       } else if (sortType == 'year') {
         list = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         for (let i = 0; i < data.length; i++) {
-          list[data[i]._id.month - 1] = Math.floor(data[i].avg_focus)
+          list[i] = Math.floor(data[i].avg_focus)
         }
       }
     }
-    console.log(sortType, list)
+    // console.log(sortType, list)
     return list
 
   }
@@ -118,7 +119,7 @@ const Home = ({ userid }: Props) => {
     }
     const response = await instance.post(end_point, { userid: userid }, { headers: { "Content-Type": 'application/json' } })
     const data: any[] = response.data
-
+    console.log(data)
     setPlotData(process_plot_data(data))
   }
 
