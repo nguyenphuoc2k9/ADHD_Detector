@@ -2,9 +2,8 @@ from dotenv import load_dotenv,find_dotenv
 import os
 load_dotenv(find_dotenv("BE/.env"))
 API_KEY = os.environ.get("GEMINI_API_KEY")
+print(API_KEY)
 from google import genai
-
-
 client = genai.Client(api_key=API_KEY)
 chat = client.chats.create(model="gemini-2.5-flash")
 def ask_AI(user_chat,timestamp,time='day'):

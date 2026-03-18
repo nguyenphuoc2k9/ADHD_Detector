@@ -101,15 +101,25 @@ def find_timestamp_this_month(payload):
     now = dt.now()
     start = dt(now.year,now.month,1)
     query = [
-        {"$match":{
-            "userId":userid,
-            "timestamp": {"$gte":start, "$lte":now}    
-        }},
-        {"$group": {
-            "_id": {"day": {"$dayOfMonth":"$timestamp"}},
-            "avg_focus": {"$avg":"$focus_score"}
-        }},
-        {"$sort": {"_id.day":1}}
+        {
+            "$match": {
+                "userId": userid,
+                "timestamp": {
+                    "$gte": start,
+                    "$lte": now
+                }
+            }
+        },
+        {
+            "$group": {
+                "_id": {"$dayOfMonth": "$timestamp"},
+                "avg_focus": {"$avg": "$focus_score"}
+            }
+        },
+        {
+            # Sort by the day of the month (1, 2, 3...)
+            "$sort": {"_id": 1}
+        }
     ]
     res = FC.aggregate(query)
     return list(res)
